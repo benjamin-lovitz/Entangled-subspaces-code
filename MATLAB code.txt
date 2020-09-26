@@ -1,0 +1,72 @@
+% Create the projection onto the border-rank-3 subspace of C^3 \otimes C^3 \otimes C^2
+v1 = Tensor([1;0;0],[1;0;0],[1;0]) + Tensor([0;1;0],[0;1;0],[1;0]) + Tensor([0;0;1],[0;0;1],[1;0]);
+v2 = Tensor([1;0;0],[1;0;0],[0;1]) + Tensor([0;1;0],[0;1;0],[0;1]) + Tensor([0;0;1],[0;0;1],[0;1]);
+
+c = [0,1,1,1];
+d = [1,1,2,0];
+e = [1,1,1,0];
+f = [0,2,1,1];
+
+v3 = c(1)*Tensor([1;0;0],[0;1;0],[1;0]) + c(2)*Tensor([0;1;0],[1;0;0],[1;0]) + c(3)*Tensor([0;0;1],[1;0;0],[0;1]) + c(4)*Tensor([1;0;0],[0;0;1],[0;1]);
+v4 = d(1)*Tensor([1;0;0],[0;1;0],[1;0]) + d(2)*Tensor([0;1;0],[1;0;0],[1;0]) + d(3)*Tensor([0;0;1],[1;0;0],[0;1]) + d(4)*Tensor([1;0;0],[0;0;1],[0;1]);
+v5 = e(1)*Tensor([1;0;0],[0;0;1],[1;0]) + e(2)*Tensor([0;0;1],[1;0;0],[1;0]) + e(3)*Tensor([0;0;1],[0;1;0],[0;1]) + e(4)*Tensor([0;1;0],[0;0;1],[0;1]);
+v6 = f(1)*Tensor([1;0;0],[0;0;1],[1;0]) + f(2)*Tensor([0;0;1],[1;0;0],[1;0]) + f(3)*Tensor([0;0;1],[0;1;0],[0;1]) + f(4)*Tensor([0;1;0],[0;0;1],[0;1]);
+
+v1=v1/norm(v1);
+v2=v2/norm(v2);
+v3=v3/norm(v3);
+v4=v4/norm(v4);
+v5=v5/norm(v5);
+v6=v6/norm(v6);
+
+A = [v1,v2,v3,v4,v5,v6];
+P=A*inv(A'*A)*A';
+P=(P+P')/2;
+
+% Use tensor_rank_iterate to maximize P over states with tensor rank <= 2.
+% We want this value to be as small as possible. A value of 1 means there is a tensor-rank-2 state in the subspace.
+% Smaller values mean the subspace is non-trivial.
+sval = 0;
+for j = 1:100
+    [val,v] = tensor_rank_iterate(P,2,[3,3,2]);
+    if(val>sval)
+        sval=val;
+        [j,sval]
+        sv=v;
+    end
+end
+
+
+% Create the projection onto the 2-entangled subspace of C^2 \otimes C^2 \otimes C^2 \otimes C^2
+A=     [0     0     0     0     0     1
+	1     0     0     0     0     0
+	0     0     1     1     0     0
+	0     0     0     0     0     0
+	0     1     0     1     0     0
+	0     0     0     0     1     2
+	1     0     0     0     0     0
+	0     0     0     1     0     0
+	0     0     1     0     0     0
+	0     1     0     0     0     0
+	0     0     0     0     1     1
+	1     0     1     0     0     0
+	0     0     0     0     0     0
+	0     0     1     1     0     0
+	0     1     0     0     0     0
+	0     0     0     0     1     0];
+	
+P=A*inv(A'*A)*A';
+P=(P+P')/2;
+        
+% Use tensor_rank_iterate to maximize P over states with tensor rank <= 2.
+% We want this value to be as small as possible. A value of 1 means there is a tensor-rank-2 state in the subspace.
+% Smaller values mean the subspace is non-trivial.
+sval = 0;
+for j = 1:100
+    [val,vp] = tensor_rank_iterate(P,2,[2,2,2,2]);
+    if(val>sval)
+        sval=val;
+        [j,sval]
+        sv=vp;
+    end
+end
